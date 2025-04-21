@@ -7,7 +7,7 @@ import '../models/product_hive_model.dart';
 
 class ProductRepositoryImpl extends ProductRepository {
   final ProductRemoteDataSource _remoteDataSource;
-  final Box<ProductHiveModel> _box = Hive.box<ProductHiveModel>('products');
+  // final Box<ProductHiveModel> _box = Hive.box<ProductHiveModel>('products');
 
   ProductRepositoryImpl(this._remoteDataSource);
 
@@ -16,22 +16,23 @@ class ProductRepositoryImpl extends ProductRepository {
     try {
       final remoteProducts = await _remoteDataSource.fetchProducts();
 
-      // cache to Hive
-      await _box.clear();
-      for (var product in remoteProducts) {
-        _box.add(ProductHiveModel.fromJson(product.toJson()));
-      }
+      // // cache to Hive
+      // await _box.clear();
+      // for (var product in remoteProducts) {
+      //   _box.add(ProductHiveModel.fromJson(product.toJson()));
+      // }
 
       return remoteProducts;
     } catch (_) {
       // fallback from cache
-      if (_box.isNotEmpty) {
-        return _box.values
-            .map((e) => ProductModel.fromJson(e.toJson()))
-            .toList();
-      } else {
-        rethrow;
-      }
+      // if (_box.isNotEmpty) {
+      //   return _box.values
+      //       .map((e) => ProductModel.fromJson(e.toJson()))
+      //       .toList();
+      // } else {
+      //   rethrow;
+      // }
+      rethrow;
     }
   }
 }
