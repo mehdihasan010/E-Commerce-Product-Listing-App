@@ -33,8 +33,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'E-Commerce Product Listing',
-      theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.deepPurple),
+      theme: ThemeData(
+        useMaterial3: true,
+        colorSchemeSeed: Colors.deepPurple,
+        fontFamily: 'Inter', // Setting Inter as global font
+      ),
       home: BlocProvider(
         create: (_) => ProductBloc(useCase)..add(LoadInitialProducts()),
         child: const HomeScreen(),

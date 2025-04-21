@@ -32,67 +32,105 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Product Listing')),
-      body: BlocBuilder<ProductBloc, ProductState>(
-        builder: (context, state) {
-          final filtered =
-              state.products
-                  .where((p) => p.title.toLowerCase().contains(query))
-                  .toList();
+      backgroundColor: Colors.grey[50],
+      body: SafeArea(
+        child: BlocBuilder<ProductBloc, ProductState>(
+          builder: (context, state) {
+            final filtered =
+                state.products
+                    .where((p) => p.title.toLowerCase().contains(query))
+                    .toList();
 
-          return Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: TextField(
-                  onChanged: (val) => setState(() => query = val.toLowerCase()),
-                  decoration: InputDecoration(
-                    hintText: 'Search Anything...',
-                    prefixIcon: const Icon(Icons.search),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+            return CustomScrollView(
+              controller: _scrollController,
+              slivers: [
+                SliverAppBar(
+                  floating: true,
+                  backgroundColor: Colors.grey[50],
+                  title: const Text(
+                    'Featured Products',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
                     ),
                   ),
                 ),
-              ),
-              if (state.error != null)
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    '⚠ ${state.error}',
-                    style: const TextStyle(color: Colors.red),
+                SliverPadding(
+                  padding: const EdgeInsets.all(16.0),
+                  sliver: SliverToBoxAdapter(
+                    child: TextField(
+                      onChanged:
+                          (val) => setState(() => query = val.toLowerCase()),
+                      decoration: InputDecoration(
+                        hintText: 'Search products...',
+                        prefixIcon: const Icon(Icons.search),
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              if (state.isLoading && state.products.isEmpty)
-                const Expanded(
-                  child: Center(child: CircularProgressIndicator()),
-                )
-              else
-                Expanded(
-                  child: GridView.builder(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.all(8.0),
-                    itemCount: filtered.length,
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 8,
-                          mainAxisSpacing: 8,
-                          childAspectRatio: 0.65,
-                        ),
-                    itemBuilder:
+                if (state.error != null)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text(
+                        '⚠ ${state.error}',
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  ),
+                if (state.isLoading && state.products.isEmpty)
+                  const SliverFillRemaining(
+                    child: Center(child: CircularProgressIndicator()),
+                  )
+                else
+                  SliverPadding(
+                    padding: const EdgeInsets.all(16.0),
+                    sliver: SliverGrid(
+                      delegate: SliverChildBuilderDelegate(
                         (context, index) =>
                             ProductTile(product: filtered[index]),
+                        childCount: filtered.length,
+                      ),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio: 0.65,
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 16,
+                          ),
+                    ),
                   ),
-                ),
-              if (state.isLoadingMore)
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 12),
-                  child: CircularProgressIndicator(),
-                ),
-            ],
-          );
-        },
+                if (state.isLoadingMore)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 16.0),
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.grey[400],
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
