@@ -13,9 +13,9 @@ import 'core/services/network_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // await Hive.initFlutter();
-  // Hive.registerAdapter(ProductHiveModelAdapter());
-  // await Hive.openBox<ProductHiveModel>('products');
+  await Hive.initFlutter();
+  Hive.registerAdapter(ProductHiveModelAdapter());
+  await Hive.openBox<ProductHiveModel>('products');
 
   final networkService = NetworkService();
   final remoteDataSource = ProductRemoteDataSourceImpl(networkService);

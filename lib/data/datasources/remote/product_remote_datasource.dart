@@ -16,6 +16,7 @@ class ProductRemoteDataSourceImpl extends ProductRemoteDataSource {
     final url = '${ApiConstants.baseUrl}${ApiConstants.productsEndpoint}';
 
     final response = await _networkService.getProducts(url);
+    print(response);
 
     // response is already a Result<Failure, List<ProductModel>>
     return response.match(
