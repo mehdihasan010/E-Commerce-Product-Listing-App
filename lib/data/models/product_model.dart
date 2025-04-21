@@ -11,6 +11,7 @@ class ProductModel extends ProductEntity {
     required super.price,
     required super.rating,
     required super.ratingCount,
+    super.isFavorite = false,
   });
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
@@ -22,6 +23,7 @@ class ProductModel extends ProductEntity {
       price: (json['price'] as num).toDouble(),
       rating: (json['rating']['rate'] as num).toDouble(),
       ratingCount: json['rating']['count'],
+      isFavorite: json['isFavorite'] ?? false,
     );
   }
 
@@ -33,11 +35,13 @@ class ProductModel extends ProductEntity {
     'price': price,
     'rating': rating,
     'ratingCount': ratingCount,
+    'isFavorite': isFavorite,
   };
 
-
   static List<ProductModel> decodeList(String source) =>
-      (jsonDecode(source) as List).map((e) => ProductModel.fromJson(e)).toList();
+      (jsonDecode(source) as List)
+          .map((e) => ProductModel.fromJson(e))
+          .toList();
 
   static String encodeList(List<ProductModel> list) =>
       jsonEncode(list.map((e) => e.toJson()).toList());

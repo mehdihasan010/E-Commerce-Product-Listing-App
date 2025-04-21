@@ -6,7 +6,7 @@ class FetchProductsUseCase {
 
   FetchProductsUseCase(this.repository);
 
-  Future<List<ProductEntity>> call() async {
+  Future<List<ProductEntity>> call({int page = 0}) {
     return repository.fetchProducts();
   }
 }
