@@ -14,13 +14,6 @@ class ProductTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            spreadRadius: 1,
-            blurRadius: 2,
-          ),
-        ],
       ),
       child: Column(
         children: [
@@ -88,7 +81,7 @@ class ProductTile extends StatelessWidget {
                       color: Colors.grey.shade800,
                     ),
                   ),
-                  const SizedBox(height: 4), // Reduced from 8
+                  const SizedBox(height: 8), // Reduced from 8
                   Row(
                     children: [
                       Expanded(
@@ -130,7 +123,7 @@ class ProductTile extends StatelessWidget {
                     ],
                   ),
 
-                  const SizedBox(height: 4), // Reduced from 12
+                  const SizedBox(height: 8), // Reduced from 12
                   Row(
                     children: [
                       Container(

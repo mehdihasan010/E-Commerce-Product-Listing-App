@@ -44,18 +44,6 @@ class _HomeScreenState extends State<HomeScreen> {
             return CustomScrollView(
               controller: _scrollController,
               slivers: [
-                SliverAppBar(
-                  floating: true,
-                  backgroundColor: Colors.grey[50],
-                  title: const Text(
-                    'Featured Products',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                ),
                 SliverPadding(
                   padding: const EdgeInsets.all(16.0),
                   sliver: SliverToBoxAdapter(
@@ -63,21 +51,30 @@ class _HomeScreenState extends State<HomeScreen> {
                       onChanged:
                           (val) => setState(() => query = val.toLowerCase()),
                       decoration: InputDecoration(
-                        hintText: 'Search products...',
+                        hintText: 'Search Anything...',
                         prefixIcon: const Icon(Icons.search),
                         filled: true,
                         fillColor: Colors.white,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
+                          borderSide: BorderSide(
+                            width: 1,
+                            color: Colors.grey.shade300,
+                          ),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
+                          borderSide: BorderSide(
+                            width: 1,
+                            color: Colors.grey.shade300,
+                          ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: Colors.grey.shade300),
+                          borderSide: BorderSide(
+                            width: 1,
+                            color: Colors.grey.shade300,
+                          ),
                         ),
                       ),
                     ),
@@ -88,7 +85,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Text(
-                        '⚠ ${state.error}',
+                        '${state.error}',
                         style: const TextStyle(color: Colors.red),
                       ),
                     ),
