@@ -13,14 +13,22 @@ class ProductModel extends ProductEntity {
   });
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
+    // Handle both nested and flat rating formats
+    final rating = json['rating'] is Map 
+        ? (json['rating']['rate'] as num).toDouble()
+        : (json['rating'] as num).toDouble();
+    final ratingCount = json['rating'] is Map
+        ? json['rating']['count']
+        : json['ratingCount'];
+
     return ProductModel(
       id: json['id'],
       title: json['title'],
       description: json['description'],
       image: json['image'],
       price: (json['price'] as num).toDouble(),
-      rating: (json['rating']['rate'] as num).toDouble(),
-      ratingCount: json['rating']['count'],
+      rating: rating,
+      ratingCount: ratingCount,
       isFavorite: json['isFavorite'] ?? false,
     );
   }

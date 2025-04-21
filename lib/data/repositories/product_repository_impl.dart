@@ -7,9 +7,9 @@ import '../models/product_hive_model.dart';
 
 class ProductRepositoryImpl extends ProductRepository {
   final ProductRemoteDataSource _remoteDataSource;
-  final Box<ProductHiveModel> _box = Hive.box<ProductHiveModel>('products');
+  final Box<ProductHiveModel> _box;
 
-  ProductRepositoryImpl(this._remoteDataSource);
+  ProductRepositoryImpl(this._remoteDataSource, this._box);
 
   @override
   Future<List<ProductEntity>> fetchProducts() async {

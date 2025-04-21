@@ -19,7 +19,7 @@ void main() async {
 
   final networkService = NetworkService();
   final remoteDataSource = ProductRemoteDataSourceImpl(networkService);
-  final repository = ProductRepositoryImpl(remoteDataSource);
+  final repository = ProductRepositoryImpl(remoteDataSource, Hive.box<ProductHiveModel>('products'));
   final useCase = FetchProductsUseCase(repository);
 
   runApp(MyApp(useCase: useCase));
