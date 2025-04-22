@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:ecommerce_product_listing_app/core/services/image_cache_service.dart';
 import 'package:ecommerce_product_listing_app/domain/usecases/fetch_products_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -32,7 +34,14 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
         imageCacheService!.precacheImages(imageUrls);
       }
     } catch (e) {
-      emit(state.copyWith(isLoading: false, error: e.toString()));
+      // Set specific error for network issues
+      String errorMessage = e.toString();
+      if (e is SocketException ||
+          e is HttpException ||
+          e.toString().contains('network')) {
+        errorMessage = 'Network error: Please check your internet connection';
+      }
+      emit(state.copyWith(isLoading: false, error: errorMessage));
     }
   }
 
@@ -58,7 +67,14 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
         imageCacheService!.precacheImages(imageUrls);
       }
     } catch (e) {
-      emit(state.copyWith(isLoadingMore: false, error: e.toString()));
+      // Set specific error for network issues
+      String errorMessage = e.toString();
+      if (e is SocketException ||
+          e is HttpException ||
+          e.toString().contains('network')) {
+        errorMessage = 'Network error: Cannot load more products';
+      }
+      emit(state.copyWith(isLoadingMore: false, error: errorMessage));
     }
   }
 
