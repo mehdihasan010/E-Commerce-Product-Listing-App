@@ -88,12 +88,13 @@ class ProductTile extends StatelessWidget {
                         // Wrap price row in Expanded
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Text(
                               '\$${product.price.toStringAsFixed(2)}',
                               style: const TextStyle(
-                                fontSize: 16, // Reduced from 20
-                                fontWeight: FontWeight.bold,
+                                fontSize: 14, // Reduced from 20
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                             const SizedBox(width: 4), // Reduced from 8
@@ -101,20 +102,21 @@ class ProductTile extends StatelessWidget {
                               child: Text(
                                 '\$40.25',
                                 style: TextStyle(
-                                  fontSize: 12, // Reduced from 14
+                                  fontSize: 10,
                                   color: Colors.grey.shade500,
+                                  fontWeight: FontWeight.w500,
                                   decoration: TextDecoration.lineThrough,
                                 ),
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                            const SizedBox(width: 4), // Reduced from 8
+                            const SizedBox(width: 4),
                             Text(
                               '15% OFF',
                               style: TextStyle(
                                 color: Colors.orange.shade700,
-                                fontSize: 10, // Reduced from 12
-                                fontWeight: FontWeight.bold,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ],
@@ -129,7 +131,7 @@ class ProductTile extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
-                          color: Colors.yellow.shade500,
+                          color: Colors.yellow.shade400,
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Row(
@@ -142,7 +144,7 @@ class ProductTile extends StatelessWidget {
                           ],
                         ),
                       ),
-                      const SizedBox(width: 2), // Reduced from 4
+                      const SizedBox(width: 4), // Reduced from 4
                       Text(
                         product.rating.toStringAsFixed(1),
                         style: const TextStyle(
