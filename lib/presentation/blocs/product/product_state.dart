@@ -1,19 +1,20 @@
 import 'package:ecommerce_product_listing_app/domain/entities/product_entity.dart';
+import 'package:ecommerce_product_listing_app/presentation/screens/home_screen.dart';
 
 class ProductState {
   final List<ProductEntity> products;
   final bool isLoading;
   final bool isLoadingMore;
-  final int currentPage;
-  final bool hasReachedEnd;
+  final String searchQuery;
+  final SortOption sortOption;
   final String? error;
 
   ProductState({
     required this.products,
     this.isLoading = false,
     this.isLoadingMore = false,
-    this.currentPage = 0,
-    this.hasReachedEnd = false,
+    this.searchQuery = '',
+    this.sortOption = SortOption.none,
     this.error,
   });
 
@@ -21,16 +22,16 @@ class ProductState {
     List<ProductEntity>? products,
     bool? isLoading,
     bool? isLoadingMore,
-    int? currentPage,
-    bool? hasReachedEnd,
+    String? searchQuery,
+    SortOption? sortOption,
     String? error,
   }) {
     return ProductState(
       products: products ?? this.products,
       isLoading: isLoading ?? this.isLoading,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
-      currentPage: currentPage ?? this.currentPage,
-      hasReachedEnd: hasReachedEnd ?? this.hasReachedEnd,
+      searchQuery: searchQuery ?? this.searchQuery,
+      sortOption: sortOption ?? this.sortOption,
       error: error,
     );
   }

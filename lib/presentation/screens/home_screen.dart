@@ -7,33 +7,21 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 enum SortOption { none, priceLowToHigh, rating }
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  final ScrollController _scrollController = ScrollController();
-  String query = '';
-  SortOption currentSort = SortOption.none;
-
-  @override
-  void initState() {
-    super.initState();
-    _scrollController.addListener(_onScroll);
-  }
-
-  void _onScroll() {
-    if (_scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent - 100) {
+  void _onScroll(BuildContext context, ScrollController controller) {
+    if (controller.position.pixels >=
+        controller.position.maxScrollExtent - 100) {
       context.read<ProductBloc>().add(LoadMoreProducts());
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final ScrollController scrollController = ScrollController();
+    scrollController.addListener(() => _onScroll(context, scrollController));
+
     return Scaffold(
       backgroundColor: Colors.grey[50],
       body: SafeArea(
@@ -41,11 +29,13 @@ class _HomeScreenState extends State<HomeScreen> {
           builder: (context, state) {
             var filtered =
                 state.products
-                    .where((p) => p.title.toLowerCase().contains(query))
+                    .where(
+                      (p) => p.title.toLowerCase().contains(state.searchQuery),
+                    )
                     .toList();
 
             // Apply sorting
-            switch (currentSort) {
+            switch (state.sortOption) {
               case SortOption.priceLowToHigh:
                 filtered.sort((a, b) => a.price.compareTo(b.price));
                 break;
@@ -57,7 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
             }
 
             return CustomScrollView(
-              controller: _scrollController,
+              controller: scrollController,
               slivers: [
                 SliverPadding(
                   padding: const EdgeInsets.all(16.0),
@@ -68,12 +58,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         Row(
                           children: [
                             Expanded(
-                              flex: 80, // 80% of the available width
+                              flex: 80,
                               child: TextField(
                                 onChanged: (val) {
-                                  setState(() {
-                                    query = val.toLowerCase();
-                                  });
+                                  context.read<ProductBloc>().add(
+                                    UpdateSearchQuery(val.toLowerCase()),
+                                  );
                                 },
                                 decoration: InputDecoration(
                                   hintText: 'Search Anything...',
@@ -108,14 +98,13 @@ class _HomeScreenState extends State<HomeScreen> {
                             Expanded(
                               flex: 20,
                               child: DropdownButton<SortOption>(
+                                value: state.sortOption,
                                 alignment: AlignmentDirectional.center,
                                 icon: Icon(
                                   Icons.sort,
                                   color: Colors.grey.shade600,
                                 ),
-                                // isExpanded: true,
-                                underline:
-                                    const SizedBox(), // This removes the underline
+                                underline: const SizedBox(),
                                 style: TextStyle(
                                   color: Colors.grey.shade800,
                                   fontSize: 14,
@@ -136,7 +125,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ],
                                 onChanged: (SortOption? value) {
                                   if (value != null) {
-                                    setState(() => currentSort = value);
+                                    context.read<ProductBloc>().add(
+                                      UpdateSortOption(value),
+                                    );
                                   }
                                 },
                               ),
@@ -145,7 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         const SizedBox(height: 10),
 
-                        query.isNotEmpty
+                        state.searchQuery.isNotEmpty
                             ? Center(
                               child: Text(
                                 '${filtered.length} Items',
@@ -210,12 +201,5 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _scrollController.removeListener(_onScroll);
-    _scrollController.dispose();
-    super.dispose();
   }
 }

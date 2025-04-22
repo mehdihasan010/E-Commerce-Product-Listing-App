@@ -41,7 +41,7 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Inter', // Setting Inter as global font
       ),
       home: BlocProvider(
-        create: (_) => ProductBloc(useCase)..add(LoadInitialProducts()),
+        create: (_) => ProductBloc(useCase)..add(LoadProducts()),
         child: const HomeScreen(),
       ),
     );
