@@ -13,7 +13,7 @@ import 'package:ecommerce_product_listing_app/presentation/widgets/product_tile.
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-enum SortOption { none, priceLowToHigh, rating }
+enum SortOption { none, priceLowToHigh, priceHighToLow, rating }
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -94,6 +94,9 @@ class HomeScreen extends StatelessWidget {
             switch (productState.sortOption) {
               case SortOption.priceLowToHigh:
                 filtered.sort((a, b) => a.price.compareTo(b.price));
+                break;
+              case SortOption.priceHighToLow:
+                filtered.sort((a, b) => b.price.compareTo(a.price));
                 break;
               case SortOption.rating:
                 filtered.sort((a, b) => b.rating.compareTo(a.rating));
@@ -231,30 +234,11 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(width: 10),
             Expanded(
               flex: 20,
-              child: DropdownButton<SortOption>(
-                value: state.sortOption,
-                alignment: AlignmentDirectional.center,
+              child: IconButton(
                 icon: Icon(Icons.sort, color: Colors.grey.shade600),
-                underline: const SizedBox(),
-                style: TextStyle(color: Colors.grey.shade800, fontSize: 14),
-                items: [
-                  DropdownMenuItem(
-                    value: SortOption.none,
-                    child: Text('Sort by'),
-                  ),
-                  DropdownMenuItem(
-                    value: SortOption.priceLowToHigh,
-                    child: const Text('Price'),
-                  ),
-                  DropdownMenuItem(
-                    value: SortOption.rating,
-                    child: const Text('Rating'),
-                  ),
-                ],
-                onChanged: (SortOption? value) {
-                  if (value != null) {
-                    context.read<ProductBloc>().add(UpdateSortOption(value));
-                  }
+                onPressed: () {
+                  final productBloc = context.read<ProductBloc>();
+                  _showSortBottomSheet(context, state.sortOption, productBloc);
                 },
               ),
             ),
@@ -273,6 +257,100 @@ class HomeScreen extends StatelessWidget {
             )
             : const SizedBox(),
       ],
+    );
+  }
+
+  void _showSortBottomSheet(
+    BuildContext context,
+    SortOption currentOption,
+    ProductBloc productBloc,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
+      ),
+      builder: (BuildContext bottomSheetContext) {
+        return Container(
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(left: 20),
+                    child: Text(
+                      'Sort By',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(bottomSheetContext),
+                  ),
+                ],
+              ),
+              const Divider(),
+              ListTile(
+                title: const Text('Price - High to Low'),
+                trailing: Radio<SortOption>(
+                  value: SortOption.priceHighToLow,
+                  groupValue: currentOption,
+                  onChanged: (SortOption? value) {
+                    if (value != null) {
+                      productBloc.add(UpdateSortOption(value));
+                      Navigator.pop(bottomSheetContext);
+                    }
+                  },
+                ),
+                onTap: () {
+                  productBloc.add(UpdateSortOption(SortOption.priceHighToLow));
+                  Navigator.pop(bottomSheetContext);
+                },
+              ),
+              ListTile(
+                title: const Text('Price - Low to High'),
+                trailing: Radio<SortOption>(
+                  value: SortOption.priceLowToHigh,
+                  groupValue: currentOption,
+                  onChanged: (SortOption? value) {
+                    if (value != null) {
+                      productBloc.add(UpdateSortOption(value));
+                      Navigator.pop(bottomSheetContext);
+                    }
+                  },
+                ),
+                onTap: () {
+                  productBloc.add(UpdateSortOption(SortOption.priceLowToHigh));
+                  Navigator.pop(bottomSheetContext);
+                },
+              ),
+              ListTile(
+                title: const Text('Rating'),
+                trailing: Radio<SortOption>(
+                  value: SortOption.rating,
+                  groupValue: currentOption,
+                  onChanged: (SortOption? value) {
+                    if (value != null) {
+                      productBloc.add(UpdateSortOption(value));
+                      Navigator.pop(bottomSheetContext);
+                    }
+                  },
+                ),
+                onTap: () {
+                  productBloc.add(UpdateSortOption(SortOption.rating));
+                  Navigator.pop(bottomSheetContext);
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
