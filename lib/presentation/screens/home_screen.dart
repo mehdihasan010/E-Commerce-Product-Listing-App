@@ -5,6 +5,12 @@ import 'package:ecommerce_product_listing_app/presentation/widgets/product_tile.
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+enum SortOption {
+  none,
+  priceLowToHigh,
+  rating
+}
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -15,6 +21,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final ScrollController _scrollController = ScrollController();
   String query = '';
+  SortOption currentSort = SortOption.none;
 
   @override
   void initState() {
@@ -36,10 +43,21 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(
         child: BlocBuilder<ProductBloc, ProductState>(
           builder: (context, state) {
-            final filtered =
-                state.products
-                    .where((p) => p.title.toLowerCase().contains(query))
-                    .toList();
+            var filtered = state.products
+                .where((p) => p.title.toLowerCase().contains(query))
+                .toList();
+
+            // Apply sorting
+            switch (currentSort) {
+              case SortOption.priceLowToHigh:
+                filtered.sort((a, b) => a.price.compareTo(b.price));
+                break;
+              case SortOption.rating:
+                filtered.sort((a, b) => b.rating.compareTo(a.rating));
+                break;
+              case SortOption.none:
+                break;
+            }
 
             return CustomScrollView(
               controller: _scrollController,
@@ -47,36 +65,73 @@ class _HomeScreenState extends State<HomeScreen> {
                 SliverPadding(
                   padding: const EdgeInsets.all(16.0),
                   sliver: SliverToBoxAdapter(
-                    child: TextField(
-                      onChanged:
-                          (val) => setState(() => query = val.toLowerCase()),
-                      decoration: InputDecoration(
-                        hintText: 'Search Anything...',
-                        prefixIcon: const Icon(Icons.search),
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            width: 1,
-                            color: Colors.grey.shade300,
+                    child: Column(
+                      children: [
+                        TextField(
+                          onChanged: (val) => setState(() => query = val.toLowerCase()),
+                          decoration: InputDecoration(
+                            hintText: 'Search Anything...',
+                            prefixIcon: const Icon(Icons.search),
+                            filled: true,
+                            fillColor: Colors.white,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                width: 1,
+                                color: Colors.grey.shade300,
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                width: 1,
+                                color: Colors.grey.shade300,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                width: 1,
+                                color: Colors.grey.shade300,
+                              ),
+                            ),
                           ),
                         ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            width: 1,
-                            color: Colors.grey.shade300,
+                        const SizedBox(height: 16),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.grey.shade300),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<SortOption>(
+                              isExpanded: true,
+                              value: currentSort,
+                              items: [
+                                DropdownMenuItem(
+                                  value: SortOption.none,
+                                  child: Text('Sort by'),
+                                ),
+                                DropdownMenuItem(
+                                  value: SortOption.priceLowToHigh,
+                                  child: Text('Price: Low to High'),
+                                ),
+                                DropdownMenuItem(
+                                  value: SortOption.rating,
+                                  child: Text('Rating'),
+                                ),
+                              ],
+                              onChanged: (SortOption? value) {
+                                if (value != null) {
+                                  setState(() => currentSort = value);
+                                }
+                              },
+                            ),
                           ),
                         ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            width: 1,
-                            color: Colors.grey.shade300,
-                          ),
-                        ),
-                      ),
+                      ],
                     ),
                   ),
                 ),
