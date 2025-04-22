@@ -167,8 +167,20 @@ lib/
 
 ## Code Highlights
 
-### BLoC Pattern Implementation
+### Dependency Injection
+The app uses a custom dependency injection system to manage dependencies:
+- Centralized in `lib/core/di/dependency_injection.dart`
+- Implements the Singleton pattern for global access
+- Organizes services, repositories, and use cases in one place
+- Makes testing easier by allowing mock dependencies
 
+```dart
+// Access dependencies anywhere in the app
+final repository = di.repository;
+final useCase = di.fetchProductsUseCase;
+```
+
+### BLoC Pattern Implementation
 The app uses the BLoC pattern to manage state, with distinct events, states, and bloc classes for different features:
 
 - **ProductBloc**: Manages product loading, filtering, and sorting
