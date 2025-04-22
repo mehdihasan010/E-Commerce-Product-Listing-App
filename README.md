@@ -13,7 +13,8 @@ A modern Flutter application showcasing e-commerce products with a clean archite
   </p>
   <p>
     <img src="assets/screenshots/offline_mode.png" alt="Offline Mode" width="250"/>
-    <img src="assets/screenshots/product_details.png" alt="Product Details" width="250"/>
+    <img src="assets/screenshots/online_mode.png" alt="Online Mode" width="250"/>
+    <img src="assets/screenshots/no_product_found.png" alt="Product Not Found" width="250"/>
   </p>
 </div>
 
