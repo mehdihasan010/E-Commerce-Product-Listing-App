@@ -1,3 +1,4 @@
+import 'package:ecommerce_product_listing_app/core/services/connectivity_service.dart';
 import 'package:ecommerce_product_listing_app/presentation/blocs/product/product_bloc.dart';
 import 'package:ecommerce_product_listing_app/presentation/blocs/product/product_event.dart';
 import 'package:ecommerce_product_listing_app/presentation/blocs/product/product_state.dart';
@@ -7,8 +8,64 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 enum SortOption { none, priceLowToHigh, rating }
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final ScrollController scrollController = ScrollController();
+  bool _wasConnected = true;
+
+  @override
+  void initState() {
+    super.initState();
+    scrollController.addListener(() => _onScroll(context, scrollController));
+
+    // Listen to connectivity changes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final connectivityService = context.read<ConnectivityService>();
+      connectivityService.connectionStatusStream.listen((isConnected) {
+        if (_wasConnected && !isConnected) {
+          // Show snackbar when connection is lost
+          _showConnectivitySnackBar(false);
+        } else if (!_wasConnected && isConnected) {
+          // Connection restored
+          _showConnectivitySnackBar(true);
+        }
+        _wasConnected = isConnected;
+      });
+
+      // Check initial connection status
+      _wasConnected = connectivityService.isConnected;
+      if (!_wasConnected) {
+        _showConnectivitySnackBar(false);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
+
+  void _showConnectivitySnackBar(bool isConnected) {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          isConnected
+              ? 'Internet connection restored!'
+              : 'No internet connection. Showing cached data.',
+        ),
+        backgroundColor: isConnected ? Colors.green : Colors.red,
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
 
   void _onScroll(BuildContext context, ScrollController controller) {
     if (controller.position.pixels >=
@@ -19,9 +76,6 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ScrollController scrollController = ScrollController();
-    scrollController.addListener(() => _onScroll(context, scrollController));
-
     return Scaffold(
       backgroundColor: Colors.grey[50],
       body: SafeArea(
