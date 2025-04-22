@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:ecommerce_product_listing_app/core/services/image_cache_service.dart';
 import 'package:ecommerce_product_listing_app/domain/usecases/fetch_products_usecase.dart';
+import 'package:ecommerce_product_listing_app/presentation/screens/home_screen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'product_event.dart';
 import 'product_state.dart';
@@ -17,6 +18,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     on<ToggleFavorite>(_onToggleFavorite);
     on<UpdateSearchQuery>(_onUpdateSearchQuery);
     on<UpdateSortOption>(_onUpdateSortOption);
+    on<UpdateSearchActiveStatus>(_onUpdateSearchActiveStatus);
   }
 
   Future<void> _onLoadInitial(
@@ -100,5 +102,22 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
 
   void _onUpdateSortOption(UpdateSortOption event, Emitter<ProductState> emit) {
     emit(state.copyWith(sortOption: event.sortOption));
+  }
+
+  void _onUpdateSearchActiveStatus(
+    UpdateSearchActiveStatus event,
+    Emitter<ProductState> emit,
+  ) {
+    // When search becomes inactive, reset sort option to none
+    if (state.isSearchActive && !event.isActive) {
+      emit(
+        state.copyWith(
+          isSearchActive: event.isActive,
+          sortOption: SortOption.none,
+        ),
+      );
+    } else {
+      emit(state.copyWith(isSearchActive: event.isActive));
+    }
   }
 }

@@ -20,3 +20,8 @@ class UpdateSortOption extends ProductEvent {
   final SortOption sortOption;
   UpdateSortOption(this.sortOption);
 }
+
+class UpdateSearchActiveStatus extends ProductEvent {
+  final bool isActive;
+  UpdateSearchActiveStatus(this.isActive);
+}

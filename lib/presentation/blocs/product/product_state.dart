@@ -8,6 +8,7 @@ class ProductState {
   final String searchQuery;
   final SortOption sortOption;
   final String? error;
+  final bool isSearchActive;
 
   ProductState({
     required this.products,
@@ -16,6 +17,7 @@ class ProductState {
     this.searchQuery = '',
     this.sortOption = SortOption.none,
     this.error,
+    this.isSearchActive = false,
   });
 
   ProductState copyWith({
@@ -25,6 +27,7 @@ class ProductState {
     String? searchQuery,
     SortOption? sortOption,
     String? error,
+    bool? isSearchActive,
   }) {
     return ProductState(
       products: products ?? this.products,
@@ -33,6 +36,7 @@ class ProductState {
       searchQuery: searchQuery ?? this.searchQuery,
       sortOption: sortOption ?? this.sortOption,
       error: error,
+      isSearchActive: isSearchActive ?? this.isSearchActive,
     );
   }
 }

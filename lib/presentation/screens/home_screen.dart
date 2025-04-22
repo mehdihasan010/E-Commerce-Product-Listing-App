@@ -15,38 +15,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 enum SortOption { none, priceLowToHigh, priceHighToLow, rating }
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
-
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  bool _isSearchActive = false;
-  final FocusNode _searchFocusNode = FocusNode();
-
-  @override
-  void initState() {
-    super.initState();
-    _searchFocusNode.addListener(() {
-      setState(() {
-        bool wasPreviouslyActive = _isSearchActive;
-        _isSearchActive = _searchFocusNode.hasFocus;
-
-        // Reset sort option to none when exiting search
-        if (wasPreviouslyActive && !_isSearchActive) {
-          context.read<ProductBloc>().add(UpdateSortOption(SortOption.none));
-        }
-      });
-    });
-  }
-
-  @override
-  void dispose() {
-    _searchFocusNode.dispose();
-    super.dispose();
-  }
 
   void _showConnectivitySnackBar(BuildContext context, bool isConnected) {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -227,7 +197,13 @@ class _HomeScreenState extends State<HomeScreen> {
             Expanded(
               flex: 80,
               child: TextField(
-                focusNode: _searchFocusNode,
+                onTap: () {
+                  if (!state.isSearchActive) {
+                    context.read<ProductBloc>().add(
+                      UpdateSearchActiveStatus(true),
+                    );
+                  }
+                },
                 onChanged: (val) {
                   context.read<ProductBloc>().add(
                     UpdateSearchQuery(val.toLowerCase()),
@@ -259,10 +235,25 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: Colors.grey.shade300,
                     ),
                   ),
+                  suffixIcon:
+                      state.isSearchActive && state.searchQuery.isNotEmpty
+                          ? IconButton(
+                            icon: const Icon(Icons.close),
+                            onPressed: () {
+                              context.read<ProductBloc>().add(
+                                UpdateSearchQuery(''),
+                              );
+                              context.read<ProductBloc>().add(
+                                UpdateSearchActiveStatus(false),
+                              );
+                              FocusScope.of(context).unfocus();
+                            },
+                          )
+                          : null,
                 ),
               ),
             ),
-            _isSearchActive
+            state.isSearchActive
                 ? Padding(
                   padding: const EdgeInsets.only(left: 10),
                   child: IconButton(
