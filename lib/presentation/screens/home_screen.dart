@@ -15,8 +15,32 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 enum SortOption { none, priceLowToHigh, priceHighToLow, rating }
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  bool _isSearchActive = false;
+  final FocusNode _searchFocusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    _searchFocusNode.addListener(() {
+      setState(() {
+        _isSearchActive = _searchFocusNode.hasFocus;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchFocusNode.dispose();
+    super.dispose();
+  }
 
   void _showConnectivitySnackBar(BuildContext context, bool isConnected) {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -197,6 +221,7 @@ class HomeScreen extends StatelessWidget {
             Expanded(
               flex: 80,
               child: TextField(
+                focusNode: _searchFocusNode,
                 onChanged: (val) {
                   context.read<ProductBloc>().add(
                     UpdateSearchQuery(val.toLowerCase()),
@@ -231,17 +256,22 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(width: 10),
-            Expanded(
-              flex: 20,
-              child: IconButton(
-                icon: Icon(Icons.sort, color: Colors.grey.shade600),
-                onPressed: () {
-                  final productBloc = context.read<ProductBloc>();
-                  _showSortBottomSheet(context, state.sortOption, productBloc);
-                },
-              ),
-            ),
+            _isSearchActive
+                ? Padding(
+                  padding: const EdgeInsets.only(left: 10),
+                  child: IconButton(
+                    icon: Icon(Icons.sort, color: Colors.grey.shade600),
+                    onPressed: () {
+                      final productBloc = context.read<ProductBloc>();
+                      _showSortBottomSheet(
+                        context,
+                        state.sortOption,
+                        productBloc,
+                      );
+                    },
+                  ),
+                )
+                : const SizedBox(),
           ],
         ),
         const SizedBox(height: 10),
