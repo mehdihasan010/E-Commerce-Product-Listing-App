@@ -31,7 +31,13 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _searchFocusNode.addListener(() {
       setState(() {
+        bool wasPreviouslyActive = _isSearchActive;
         _isSearchActive = _searchFocusNode.hasFocus;
+
+        // Reset sort option to none when exiting search
+        if (wasPreviouslyActive && !_isSearchActive) {
+          context.read<ProductBloc>().add(UpdateSortOption(SortOption.none));
+        }
       });
     });
   }
