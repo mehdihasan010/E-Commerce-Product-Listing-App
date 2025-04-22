@@ -105,24 +105,6 @@ class HomeScreen extends StatelessWidget {
                 break;
             }
 
-            // Show no data message if filtered is empty but not during initial loading
-            if (filtered.isEmpty &&
-                !productState.isLoading &&
-                productState.products.isNotEmpty) {
-              return Column(
-                children: [
-                  _buildSearchBar(context, productState),
-                  Expanded(
-                    child: NoDataWidget(
-                      isConnected: true,
-                      onRetry:
-                          () => context.read<ProductBloc>().add(LoadProducts()),
-                    ),
-                  ),
-                ],
-              );
-            }
-
             return BlocBuilder<ScrollBloc, ScrollState>(
               builder: (context, scrollState) {
                 return CustomScrollView(
@@ -147,6 +129,33 @@ class HomeScreen extends StatelessWidget {
                     if (productState.isLoading && productState.products.isEmpty)
                       const SliverFillRemaining(
                         child: Center(child: CircularProgressIndicator()),
+                      )
+                    // Show no results message for empty filtered results when searching
+                    else if (filtered.isEmpty &&
+                        productState.searchQuery.isNotEmpty &&
+                        productState.isSearchActive)
+                      SliverFillRemaining(
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.search_off,
+                                size: 64,
+                                color: Colors.grey.shade400,
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'No product found',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.grey.shade700,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       )
                     else
                       SliverPadding(
@@ -197,6 +206,15 @@ class HomeScreen extends StatelessWidget {
             Expanded(
               flex: 80,
               child: TextField(
+                controller: TextEditingController.fromValue(
+                  TextEditingValue(
+                    text: state.searchQuery,
+                    selection: TextSelection(
+                      baseOffset: state.searchTextSelectionStart,
+                      extentOffset: state.searchTextSelectionEnd,
+                    ),
+                  ),
+                ),
                 onTap: () {
                   if (!state.isSearchActive) {
                     context.read<ProductBloc>().add(

@@ -25,3 +25,9 @@ class UpdateSearchActiveStatus extends ProductEvent {
   final bool isActive;
   UpdateSearchActiveStatus(this.isActive);
 }
+
+class UpdateSearchTextSelection extends ProductEvent {
+  final int start;
+  final int end;
+  UpdateSearchTextSelection(this.start, this.end);
+}

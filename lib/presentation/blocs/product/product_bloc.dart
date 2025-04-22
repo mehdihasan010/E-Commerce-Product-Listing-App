@@ -19,6 +19,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     on<UpdateSearchQuery>(_onUpdateSearchQuery);
     on<UpdateSortOption>(_onUpdateSortOption);
     on<UpdateSearchActiveStatus>(_onUpdateSearchActiveStatus);
+    on<UpdateSearchTextSelection>(_onUpdateSearchTextSelection);
   }
 
   Future<void> _onLoadInitial(
@@ -97,7 +98,14 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     UpdateSearchQuery event,
     Emitter<ProductState> emit,
   ) {
-    emit(state.copyWith(searchQuery: event.query));
+    emit(
+      state.copyWith(
+        searchQuery: event.query,
+        // Reset the selection to end of new query
+        searchTextSelectionStart: event.query.length,
+        searchTextSelectionEnd: event.query.length,
+      ),
+    );
   }
 
   void _onUpdateSortOption(UpdateSortOption event, Emitter<ProductState> emit) {
@@ -119,5 +127,17 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     } else {
       emit(state.copyWith(isSearchActive: event.isActive));
     }
+  }
+
+  void _onUpdateSearchTextSelection(
+    UpdateSearchTextSelection event,
+    Emitter<ProductState> emit,
+  ) {
+    emit(
+      state.copyWith(
+        searchTextSelectionStart: event.start,
+        searchTextSelectionEnd: event.end,
+      ),
+    );
   }
 }

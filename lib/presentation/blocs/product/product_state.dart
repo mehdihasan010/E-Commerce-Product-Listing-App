@@ -9,6 +9,8 @@ class ProductState {
   final SortOption sortOption;
   final String? error;
   final bool isSearchActive;
+  final int searchTextSelectionStart;
+  final int searchTextSelectionEnd;
 
   ProductState({
     required this.products,
@@ -18,6 +20,8 @@ class ProductState {
     this.sortOption = SortOption.none,
     this.error,
     this.isSearchActive = false,
+    this.searchTextSelectionStart = 0,
+    this.searchTextSelectionEnd = 0,
   });
 
   ProductState copyWith({
@@ -28,6 +32,8 @@ class ProductState {
     SortOption? sortOption,
     String? error,
     bool? isSearchActive,
+    int? searchTextSelectionStart,
+    int? searchTextSelectionEnd,
   }) {
     return ProductState(
       products: products ?? this.products,
@@ -37,6 +43,10 @@ class ProductState {
       sortOption: sortOption ?? this.sortOption,
       error: error,
       isSearchActive: isSearchActive ?? this.isSearchActive,
+      searchTextSelectionStart:
+          searchTextSelectionStart ?? this.searchTextSelectionStart,
+      searchTextSelectionEnd:
+          searchTextSelectionEnd ?? this.searchTextSelectionEnd,
     );
   }
 }
