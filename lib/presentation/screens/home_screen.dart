@@ -5,11 +5,7 @@ import 'package:ecommerce_product_listing_app/presentation/widgets/product_tile.
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-enum SortOption {
-  none,
-  priceLowToHigh,
-  rating
-}
+enum SortOption { none, priceLowToHigh, rating }
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -43,9 +39,10 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(
         child: BlocBuilder<ProductBloc, ProductState>(
           builder: (context, state) {
-            var filtered = state.products
-                .where((p) => p.title.toLowerCase().contains(query))
-                .toList();
+            var filtered =
+                state.products
+                    .where((p) => p.title.toLowerCase().contains(query))
+                    .toList();
 
             // Apply sorting
             switch (currentSort) {
@@ -66,71 +63,99 @@ class _HomeScreenState extends State<HomeScreen> {
                   padding: const EdgeInsets.all(16.0),
                   sliver: SliverToBoxAdapter(
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        TextField(
-                          onChanged: (val) => setState(() => query = val.toLowerCase()),
-                          decoration: InputDecoration(
-                            hintText: 'Search Anything...',
-                            prefixIcon: const Icon(Icons.search),
-                            filled: true,
-                            fillColor: Colors.white,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(
-                                width: 1,
-                                color: Colors.grey.shade300,
+                        Row(
+                          children: [
+                            Expanded(
+                              flex: 80, // 80% of the available width
+                              child: TextField(
+                                onChanged: (val) {
+                                  setState(() {
+                                    query = val.toLowerCase();
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  hintText: 'Search Anything...',
+                                  prefixIcon: const Icon(Icons.search),
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      width: 1,
+                                      color: Colors.grey.shade300,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      width: 1,
+                                      color: Colors.grey.shade300,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      width: 1,
+                                      color: Colors.grey.shade300,
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(
-                                width: 1,
-                                color: Colors.grey.shade300,
+                            const SizedBox(width: 10),
+                            Expanded(
+                              flex: 20,
+                              child: DropdownButton<SortOption>(
+                                alignment: AlignmentDirectional.center,
+                                icon: Icon(
+                                  Icons.sort,
+                                  color: Colors.grey.shade600,
+                                ),
+                                // isExpanded: true,
+                                underline:
+                                    const SizedBox(), // This removes the underline
+                                style: TextStyle(
+                                  color: Colors.grey.shade800,
+                                  fontSize: 14,
+                                ),
+                                items: [
+                                  DropdownMenuItem(
+                                    value: SortOption.none,
+                                    child: Text('Sort by'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: SortOption.priceLowToHigh,
+                                    child: const Text('Price'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: SortOption.rating,
+                                    child: const Text('Rating'),
+                                  ),
+                                ],
+                                onChanged: (SortOption? value) {
+                                  if (value != null) {
+                                    setState(() => currentSort = value);
+                                  }
+                                },
                               ),
                             ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(
-                                width: 1,
-                                color: Colors.grey.shade300,
-                              ),
-                            ),
-                          ),
+                          ],
                         ),
-                        const SizedBox(height: 16),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.grey.shade300),
-                          ),
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton<SortOption>(
-                              isExpanded: true,
-                              value: currentSort,
-                              items: [
-                                DropdownMenuItem(
-                                  value: SortOption.none,
-                                  child: Text('Sort by'),
+                        const SizedBox(height: 10),
+
+                        query.isNotEmpty
+                            ? Center(
+                              child: Text(
+                                '${filtered.length} Items',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
                                 ),
-                                DropdownMenuItem(
-                                  value: SortOption.priceLowToHigh,
-                                  child: Text('Price: Low to High'),
-                                ),
-                                DropdownMenuItem(
-                                  value: SortOption.rating,
-                                  child: Text('Rating'),
-                                ),
-                              ],
-                              onChanged: (SortOption? value) {
-                                if (value != null) {
-                                  setState(() => currentSort = value);
-                                }
-                              },
-                            ),
-                          ),
-                        ),
+                              ),
+                            )
+                            : const SizedBox(),
                       ],
                     ),
                   ),
