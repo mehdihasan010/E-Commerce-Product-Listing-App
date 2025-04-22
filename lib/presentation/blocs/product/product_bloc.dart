@@ -1,3 +1,4 @@
+import 'package:ecommerce_product_listing_app/core/services/image_cache_service.dart';
 import 'package:ecommerce_product_listing_app/domain/usecases/fetch_products_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'product_event.dart';
@@ -5,8 +6,10 @@ import 'product_state.dart';
 
 class ProductBloc extends Bloc<ProductEvent, ProductState> {
   final FetchProductsUseCase useCase;
+  final ImageCacheService? imageCacheService;
 
-  ProductBloc(this.useCase) : super(ProductState(products: [])) {
+  ProductBloc(this.useCase, {this.imageCacheService})
+    : super(ProductState(products: [])) {
     on<LoadProducts>(_onLoadInitial);
     on<LoadMoreProducts>(_onLoadMore);
     on<ToggleFavorite>(_onToggleFavorite);
@@ -22,6 +25,12 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     try {
       final products = await useCase(page: 0);
       emit(state.copyWith(products: products, isLoading: false));
+
+      // Pre-cache product images for offline use
+      if (imageCacheService != null) {
+        final imageUrls = products.map((product) => product.image).toList();
+        imageCacheService!.precacheImages(imageUrls);
+      }
     } catch (e) {
       emit(state.copyWith(isLoading: false, error: e.toString()));
     }
@@ -42,6 +51,12 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
           isLoadingMore: false,
         ),
       );
+
+      // Pre-cache new product images for offline use
+      if (imageCacheService != null) {
+        final imageUrls = moreProducts.map((product) => product.image).toList();
+        imageCacheService!.precacheImages(imageUrls);
+      }
     } catch (e) {
       emit(state.copyWith(isLoadingMore: false, error: e.toString()));
     }

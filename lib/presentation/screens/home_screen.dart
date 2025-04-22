@@ -1,58 +1,23 @@
 import 'package:ecommerce_product_listing_app/core/services/connectivity_service.dart';
+import 'package:ecommerce_product_listing_app/presentation/blocs/connectivity/connectivity_bloc.dart';
+import 'package:ecommerce_product_listing_app/presentation/blocs/connectivity/connectivity_event.dart';
+import 'package:ecommerce_product_listing_app/presentation/blocs/connectivity/connectivity_state.dart';
 import 'package:ecommerce_product_listing_app/presentation/blocs/product/product_bloc.dart';
 import 'package:ecommerce_product_listing_app/presentation/blocs/product/product_event.dart';
 import 'package:ecommerce_product_listing_app/presentation/blocs/product/product_state.dart';
+import 'package:ecommerce_product_listing_app/presentation/blocs/scroll/scroll_bloc.dart';
+import 'package:ecommerce_product_listing_app/presentation/blocs/scroll/scroll_event.dart';
+import 'package:ecommerce_product_listing_app/presentation/blocs/scroll/scroll_state.dart';
 import 'package:ecommerce_product_listing_app/presentation/widgets/product_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 enum SortOption { none, priceLowToHigh, rating }
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  final ScrollController scrollController = ScrollController();
-  bool _wasConnected = true;
-
-  @override
-  void initState() {
-    super.initState();
-    scrollController.addListener(() => _onScroll(context, scrollController));
-
-    // Listen to connectivity changes
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final connectivityService = context.read<ConnectivityService>();
-      connectivityService.connectionStatusStream.listen((isConnected) {
-        if (_wasConnected && !isConnected) {
-          // Show snackbar when connection is lost
-          _showConnectivitySnackBar(false);
-        } else if (!_wasConnected && isConnected) {
-          // Connection restored
-          _showConnectivitySnackBar(true);
-        }
-        _wasConnected = isConnected;
-      });
-
-      // Check initial connection status
-      _wasConnected = connectivityService.isConnected;
-      if (!_wasConnected) {
-        _showConnectivitySnackBar(false);
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    scrollController.dispose();
-    super.dispose();
-  }
-
-  void _showConnectivitySnackBar(bool isConnected) {
+  void _showConnectivitySnackBar(BuildContext context, bool isConnected) {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -67,41 +32,63 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _onScroll(BuildContext context, ScrollController controller) {
-    if (controller.position.pixels >=
-        controller.position.maxScrollExtent - 100) {
-      context.read<ProductBloc>().add(LoadMoreProducts());
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[50],
-      body: SafeArea(
-        child: BlocBuilder<ProductBloc, ProductState>(
-          builder: (context, state) {
-            var filtered =
-                state.products
-                    .where(
-                      (p) => p.title.toLowerCase().contains(state.searchQuery),
-                    )
-                    .toList();
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create:
+              (context) =>
+                  ConnectivityBloc(context.read<ConnectivityService>())
+                    ..add(InitConnectivity()),
+        ),
+        BlocProvider(
+          create:
+              (context) =>
+                  ScrollBloc(productBloc: context.read<ProductBloc>())
+                    ..add(InitScrollController()),
+        ),
+      ],
+      child: Scaffold(
+        backgroundColor: Colors.grey[50],
+        body: SafeArea(
+          child: BlocListener<ConnectivityBloc, ConnectivityState>(
+            listener: (context, state) {
+              if (state.shouldShowMessage) {
+                _showConnectivitySnackBar(context, state.isConnected);
+              }
+            },
+            child: _buildBody(context),
+          ),
+        ),
+      ),
+    );
+  }
 
-            // Apply sorting
-            switch (state.sortOption) {
-              case SortOption.priceLowToHigh:
-                filtered.sort((a, b) => a.price.compareTo(b.price));
-                break;
-              case SortOption.rating:
-                filtered.sort((a, b) => b.rating.compareTo(a.rating));
-                break;
-              case SortOption.none:
-                break;
-            }
+  Widget _buildBody(BuildContext context) {
+    return BlocBuilder<ProductBloc, ProductState>(
+      builder: (context, state) {
+        var filtered =
+            state.products
+                .where((p) => p.title.toLowerCase().contains(state.searchQuery))
+                .toList();
 
+        // Apply sorting
+        switch (state.sortOption) {
+          case SortOption.priceLowToHigh:
+            filtered.sort((a, b) => a.price.compareTo(b.price));
+            break;
+          case SortOption.rating:
+            filtered.sort((a, b) => b.rating.compareTo(a.rating));
+            break;
+          case SortOption.none:
+            break;
+        }
+
+        return BlocBuilder<ScrollBloc, ScrollState>(
+          builder: (context, scrollState) {
             return CustomScrollView(
-              controller: scrollController,
+              controller: scrollState.scrollController,
               slivers: [
                 SliverPadding(
                   padding: const EdgeInsets.all(16.0),
@@ -189,7 +176,6 @@ class _HomeScreenState extends State<HomeScreen> {
                           ],
                         ),
                         const SizedBox(height: 10),
-
                         state.searchQuery.isNotEmpty
                             ? Center(
                               child: Text(
@@ -252,8 +238,8 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             );
           },
-        ),
-      ),
+        );
+      },
     );
   }
 }

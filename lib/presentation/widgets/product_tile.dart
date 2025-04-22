@@ -1,6 +1,7 @@
 import 'package:ecommerce_product_listing_app/domain/entities/product_entity.dart';
 import 'package:ecommerce_product_listing_app/presentation/blocs/product/product_bloc.dart';
 import 'package:ecommerce_product_listing_app/presentation/blocs/product/product_event.dart';
+import 'package:ecommerce_product_listing_app/presentation/widgets/cached_image_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -19,15 +20,13 @@ class ProductTile extends StatelessWidget {
         children: [
           Stack(
             children: [
-              ClipRRect(
+              CachedImageWidget(
+                imageUrl: product.image,
+                width: 160,
+                height: 160,
+                fit: BoxFit.fill,
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(12),
-                ),
-                child: Image.network(
-                  product.image,
-                  width: 160,
-                  height: 160, // Reduced from 200
-                  fit: BoxFit.fill,
                 ),
               ),
               Positioned(

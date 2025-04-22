@@ -1,4 +1,5 @@
 // main.dart
+import 'package:ecommerce_product_listing_app/core/services/image_cache_service.dart';
 import 'package:ecommerce_product_listing_app/presentation/blocs/product/product_bloc.dart';
 import 'package:ecommerce_product_listing_app/presentation/blocs/product/product_event.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +21,7 @@ void main() async {
 
   final networkService = NetworkService();
   final connectivityService = ConnectivityService();
+  final imageCacheService = ImageCacheService();
   final remoteDataSource = ProductRemoteDataSourceImpl(networkService);
   final repository = ProductRepositoryImpl(
     remoteDataSource,
@@ -27,17 +29,25 @@ void main() async {
   );
   final useCase = FetchProductsUseCase(repository);
 
-  runApp(MyApp(useCase: useCase, connectivityService: connectivityService));
+  runApp(
+    MyApp(
+      useCase: useCase,
+      connectivityService: connectivityService,
+      imageCacheService: imageCacheService,
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
   final FetchProductsUseCase useCase;
   final ConnectivityService connectivityService;
+  final ImageCacheService imageCacheService;
 
   const MyApp({
     super.key,
     required this.useCase,
     required this.connectivityService,
+    required this.imageCacheService,
   });
 
   @override
@@ -51,9 +61,15 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Inter', // Setting Inter as global font
       ),
       home: MultiRepositoryProvider(
-        providers: [RepositoryProvider.value(value: connectivityService)],
+        providers: [
+          RepositoryProvider.value(value: connectivityService),
+          RepositoryProvider.value(value: imageCacheService),
+        ],
         child: BlocProvider(
-          create: (_) => ProductBloc(useCase)..add(LoadProducts()),
+          create:
+              (_) =>
+                  ProductBloc(useCase, imageCacheService: imageCacheService)
+                    ..add(LoadProducts()),
           child: const HomeScreen(),
         ),
       ),
