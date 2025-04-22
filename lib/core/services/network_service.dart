@@ -14,25 +14,18 @@ class NetworkService {
   NetworkService() : _dio = Dio();
 
   Future<Result<Failure, List<ProductModel>>> getProducts(String url) async {
-    print('network start');
     try {
       final response = await _dio.get(url);
-      print(response);
       if (response.statusCode == 200 && response.data != null) {
         final List decoded = response.data;
-        print(decoded);
         final List<ProductModel> products =
             decoded.map((json) => ProductModel.fromJson(json)).toList();
-
-        print(products);
 
         // Cache to Hive
         await _box.clear();
         for (var json in decoded) {
           _box.add(ProductHiveModel.fromJson(json));
         }
-
-        print(_box);
 
         return right(products);
       }

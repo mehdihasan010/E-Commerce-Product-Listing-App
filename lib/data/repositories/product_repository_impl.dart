@@ -15,7 +15,6 @@ class ProductRepositoryImpl extends ProductRepository {
   Future<List<ProductEntity>> fetchProducts() async {
     try {
       final remoteProducts = await _remoteDataSource.fetchProducts();
-      print(remoteProducts);
       return remoteProducts;
     } catch (_) {
       // fallback from cache
